@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% block title %}Formato 1: Orden de Trabajo{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h3 class="mb-3"><i class="bi bi-clipboard-list"></i> Formato 1: Orden de Trabajo - {{ ot.codigo_ot }}</h3>
+    </div>
+</div>
+
+<form method="POST">
+    <!-- 1. ENCABEZADO -->
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">1. ENCABEZADO DE LA OT</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-2"><strong>N° OT:</strong> {{ ot.codigo_ot }}</div>
+                <div class="col-md-3 mb-2"><strong>Tipo:</strong> {{ ot.tipo_ot }}</div>
+                <div class="col-md-3 mb-2"><strong>Prioridad:</strong> {{ ot.prioridad }}</div>
+                <div class="col-md-3 mb-2"><strong>Estado:</strong> {{ ot.estado }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">Fecha creación</label>
+                    <input type="date" class="form-control" value="{{ ot.fecha_creacion }}" readonly>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">Hora creación</label>
+                    <input type="time" class="form-control" value="{{ ot.hora_creacion }}" readonly>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">MTTR objetivo</label>
+                    <select name="mttr_objetivo" class="form-select">
+                        <option value="4 h" {% if ot.mttr_objetivo=='4 h' %}selected{% endif %}>4 h</option>
+                        <option value="8 h" {% if ot.mttr_objetivo=='8 h' %}selected{% endif %}>8 h</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">Evento origen (IEV)</label>
+                    <input type="text" name="evento_origen" class="form-control" 
+                           value="{{ ot.evento_origen or '' }}" placeholder="IEV-COM- / N/A">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. AUTORIZACIÓN -->
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">2. AUTORIZACIÓN</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <label class="form-label">Solicitado por</label>
+                    <input type="text" name="solicitado_por" class="form-control" 
+                           value="{{ ot.solicitado_por or '' }}">
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="form-label">Aprobada por</label>
+                    <input type="text" name="aprobado_por" class="form-control" 
+                           value="{{ ot.aprobado_por or '' }}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. DESCRIPCIÓN DEL TRABAJO -->
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">3. DESCRIPCIÓN DEL TRABAJO</div>
+        <div class="card-body">
+            <div class="mb-2">
+                <label class="form-label">Descripción de la falla / tarea preventiva</label>
+                <textarea name="descripcion_falla" class="form-control" rows="3">{{ ot.descripcion_falla or '' }}</textarea>
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Síntomas / alarmas en NMS</label>
+                <textarea name="sintomas_alarmas" class="form-control" rows="2">{{ ot.sintomas_alarmas or '' }}</textarea>
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Actividades a ejecutar</label>
+                <textarea name="actividades_ejecutar" class="form-control" rows="2" 
+                          placeholder="1. ___ / 2. ___ / 3. ___">{{ ot.actividades_ejecutar or '' }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. PERSONAL Y RECURSOS -->
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">4. PERSONAL Y RECURSOS</div>
+        <div class="card-body">
+            <h6>Personal Asignado</h6>
+            <table class="table table-bordered table-sm" id="tabla-personal">
+                <thead class="table-light">
+                    <tr><th>Nombre</th><th>Cargo</th><th>Cédula</th><th>AST firmada</th><th>Permiso eléctrico</th><th>H. inicio</th><th></th></tr>
+                </thead>
+                <tbody>
+                    {% for p in personal %}
+                    <tr>
+                        <td><input type="text" name="personal_nombre[]" class="form-control form-control-sm" value="{{ p.nombre }}"></td>
+                        <td><input type="text" name="personal_cargo[]" class="form-control form-control-sm" value="{{ p.cargo }}"></td>
+                        <td><input type="text" name="personal_cedula[]" class="form-control form-control-sm" value="{{ p.cedula }}"></td>
+                        <td><select name="personal_ast[]" class="form-select form-select-sm"><option {% if p.ast_firmada=='SI' %}selected{% endif %}>SI</option><option {% if p.ast_firmada=='NO' %}selected{% endif %}>NO</option></select></td>
+                        <td><select name="personal_permiso[]" class="form-select form-select-sm"><option {% if p.permiso_electrico=='SI' %}selected{% endif %}>SI</option><option {% if p.permiso_electrico=='NO' %}selected{% endif %}>NO</option></select></td>
+                        <td><input type="time" name="personal_hora[]" class="form-control form-control-sm" value="{{ p.hora_inicio }}"></td>
+                        <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td><input type="text" name="personal_nombre[]" class="form-control form-control-sm"></td>
+                        <td><input type="text" name="personal_cargo[]" class="form-control form-control-sm"></td>
+                        <td><input type="text" name="personal_cedula[]" class="form-control form-control-sm"></td>
+                        <td><select name="personal_ast[]" class="form-select form-select-sm"><option>SI</option><option>NO</option></select></td>
+                        <td><select name="personal_permiso[]" class="form-select form-select-sm"><option>SI</option><option>NO</option></select></td>
+                        <td><input type="time" name="personal_hora[]" class="form-control form-control-sm"></td>
+                        <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-sm btn-outline-primary mb-3" onclick="agregarFila('tabla-personal')">+ Agregar Personal</button>
+
+            <h6>Materiales y Equipos Requeridos</h6>
+            <table class="table table-bordered table-sm" id="tabla-materiales">
+                <thead class="table-light">
+                    <tr><th>Ítem / Material</th><th>Unidad</th><th>Cantidad</th><th></th></tr>
+                </thead>
+                <tbody>
+                    {% for m in materiales %}
+                    <tr>
+                        <td><input type="text" name="material_item[]" class="form-control form-control-sm" value="{{ m.item_material }}"></td>
+                        <td><input type="text" name="material_unidad[]" class="form-control form-control-sm" value="{{ m.unidad }}"></td>
+                        <td><input type="number" step="0.01" name="material_cantidad[]" class="form-control form-control-sm" value="{{ m.cantidad }}"></td>
+                        <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td><input type="text" name="material_item[]" class="form-control form-control-sm"></td>
+                        <td><input type="text" name="material_unidad[]" class="form-control form-control-sm"></td>
+                        <td><input type="number" step="0.01" name="material_cantidad[]" class="form-control form-control-sm"></td>
+                        <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="agregarFila('tabla-materiales')">+ Agregar Material</button>
+        </div>
+    </div>
+
+    <!-- 5. REGISTRO DE EJECUCIÓN -->
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">5. REGISTRO DE EJECUCIÓN</div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm" id="tabla-ejecucion">
+                <thead class="table-light">
+                    <tr><th>Actividad ejecutada</th><th>Hora inicio</th><th>Hora fin</th><th>Ejecutó</th><th>Resultado / Observación</th><th></th></tr>
+                </thead>
+                <tbody>
+                    {% for e in ejecucion %}
+                    <tr>
+                        <td><input type="text" name="ejecucion_actividad[]" class="form-control form-control-sm" value="{{ e.actividad }}"></td>
+                        <td><input type="time" name="ejecucion_hora_inicio[]" class="form-control form-control-sm" value="{{ e.hora_inicio }}"></td>
+                        <td><input type="time" name="ejecucion_hora_fin[]" class="form-control form-control-sm" value="{{ e.hora_fin }}"></td>
+                        <td><input type="text" name="ejecucion_ejecuto[]" class="form-control form-control-sm" value="{{ e.ejecuto }}"></td>
+                        <td><input type="text" name="ejecucion_resultado[]" class="form-control form-control-sm" value="{{ e.resultado_observacion }}"></td>
+                        <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td><input type="text" name="ejecucion_actividad[]" class="form-control form-control-sm"></td>
+                        <td><input type="time" name="ejecucion_hora_inicio[]" class="form-control form-control-sm"></td>
+                        <td><input type="time" name="ejecucion_hora_fin[]" class="form-control form-control-sm"></td>
+                        <td><input type="text" name="ejecucion_ejecuto[]" class="form-control form-control-sm"></td>
+                        <td><input type="text" name="ejecucion_resultado[]" class="form-control form-control-sm"></td>
+                        <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="agregarFila('tabla-ejecucion')">+ Agregar Actividad</button>
+        </div>
+    </div>
+
+    <!-- 6. PRUEBAS DE ACEPTACIÓN Y CIERRE -->
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">6. PRUEBAS DE ACEPTACIÓN Y CIERRE</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label>Potencia RX FO (dBm)</label>
+                    <input type="text" name="potencia_rx" class="form-control" placeholder="≥ –28 dBm">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>RSSI GPRS (dBm)</label>
+                    <input type="text" name="rssi" class="form-control" placeholder="≥ –90 dBm">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>BER</label>
+                    <input type="text" name="ber" class="form-control" placeholder="≤ 1×10⁶">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Latencia GPRS (ms)</label>
+                    <input type="text" name="latencia" class="form-control" placeholder="≤ 500 ms">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Ping Equipo</label>
+                    <select name="ping_equipo" class="form-select">
+                        <option value="Exitoso">Exitoso</option>
+                        <option value="Fallido">Fallido</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Canal estable ≥15 min</label>
+                    <select name="canal_estable" class="form-select">
+                        <option value="SI">SÍ</option>
+                        <option value="NO">NO</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>¿Pruebas aprobadas?</label>
+                    <select name="pruebas_aprobadas" class="form-select">
+                        <option value="SI">SÍ</option>
+                        <option value="NO">NO</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Archivo OTDR adjunto</label>
+                    <select name="archivo_otdr_adjunto" class="form-select">
+                        <option value="SI">Sí</option>
+                        <option value="NO">No</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-4 mb-2">
+                    <label>Hora entrega activo al CCE</label>
+                    <input type="time" name="hora_entrega_cce" class="form-control">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Hora cierre OT</label>
+                    <input type="time" name="hora_cierre_ot" class="form-control">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Tiempo total intervención (h)</label>
+                    <input type="number" step="0.1" name="tiempo_intervencion" class="form-control">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Tiempo indisponibilidad (min)</label>
+                    <input type="number" name="tiempo_indisponibilidad" class="form-control">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Acta de Entrega generada</label>
+                    <select name="acta_generada" class="form-select">
+                        <option value="SI">Sí</option>
+                        <option value="NO">No</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-2 mt-2">
+                <label>Observaciones finales</label>
+                <textarea name="observaciones_finales" class="form-control" rows="2"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. FIRMAS -->
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">7. FIRMAS DE CIERRE</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label>Técnico ejecutor (Nombre)</label>
+                    <input type="text" name="tecnico_ejecutor" class="form-control">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Coordinador TO (Nombre)</label>
+                    <input type="text" name="coordinador_to" class="form-control">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Fecha / hora</label>
+                    <input type="datetime-local" name="fecha_hora_firma" class="form-control">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+        <a href="{{ url_for('ver_ot', ot_id=ot.id) }}" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="bi bi-send"></i> Guardar y Enviar para Revisión
+        </button>
+    </div>
+</form>
+
+<script>
+function agregarFila(tablaId) {
+    const tabla = document.getElementById(tablaId).getElementsByTagName('tbody')[0];
+    const nuevaFila = tabla.rows[tabla.rows.length - 1].cloneNode(true);
+    nuevaFila.querySelectorAll('input').forEach(input => input.value = '');
+    tabla.appendChild(nuevaFila);
+}
+</script>
+{% endblock %}

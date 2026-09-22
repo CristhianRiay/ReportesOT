@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Formato 4: Acta de Entrega{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h3 class="mb-3"><i class="bi bi-file-earmark-check"></i> Formato 4: Acta de Entrega de Activo - {{ ot.codigo_ot }}</h3>
+    </div>
+</div>
+
+<form method="POST">
+    <!-- 1. DATOS DE LA INTERVENCIÓN -->
+    <div class="card mb-3">
+        <div class="card-header bg-info text-white">1. DATOS DE LA INTERVENCIÓN</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-2"><strong>N° OT:</strong> {{ ot.codigo_ot }}</div>
+                <div class="col-md-3 mb-2"><label>Fecha entrega</label><input type="date" name="fecha_entrega" class="form-control" value="{{ acta.fecha_entrega if acta else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>Hora entrega</label><input type="time" name="hora_entrega" class="form-control" value="{{ acta.hora_entrega if acta else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>Turno CCE receptor</label><input type="text" name="turno_cce_receptor" class="form-control" value="{{ acta.turno_cce_receptor if acta else '' }}"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-2"><label>Activo entregado</label><input type="text" name="activo_entregado" class="form-control" value="{{ acta.activo_entregado if acta else '' }}"></div>
+                <div class="col-md-4 mb-2"><label>Tipo de medio</label>
+                    <select name="tipo_medio" class="form-select">
+                        <option {% if acta and acta.tipo_medio=='FO' %}selected{% endif %}>FO</option>
+                        <option {% if acta and acta.tipo_medio=='GPRS' %}selected{% endif %}>GPRS</option>
+                        <option {% if acta and acta.tipo_medio=='AMBOS' %}selected{% endif %}>Ambos</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-2"><label>Subestación / nodo</label><input type="text" name="subestacion_nodo" class="form-control" value="{{ acta.subestacion_nodo if acta else ot.subestacion_nodo }}"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-2"><label>Técnico que entrega</label><input type="text" name="tecnico_entrega" class="form-control" value="{{ acta.tecnico_entrega if acta else '' }}"></div>
+                <div class="col-md-4 mb-2"><label>Operador CCE que recibe</label><input type="text" name="operador_cce_recibe" class="form-control" value="{{ acta.operador_cce_recibe if acta else '' }}"></div>
+                <div class="col-md-4 mb-2"><label>Turno</label><input type="text" name="turno_operador" class="form-control" value="{{ acta.turno_operador if acta else '' }}"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. ESTADO DEL ACTIVO -->
+    <div class="card mb-3">
+        <div class="card-header bg-info text-white">2. ESTADO DEL ACTIVO — ANTES Y DESPUÉS DE LA INTERVENCIÓN</div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr><th>Parámetro</th><th>ANTES DE LA INTERVENCIÓN</th><th>DESPUÉS DE LA INTERVENCIÓN (ENTREGA)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Potencia RX FO (dBm)</td><td><input type="text" name="potencia_rx_antes" class="form-control" value="{{ acta.potencia_rx_antes if acta else '' }}"></td><td><input type="text" name="potencia_rx_despues" class="form-control" value="{{ acta.potencia_rx_despues if acta else '' }}"></td></tr>
+                        <tr><td>BER</td><td><input type="text" name="ber_antes" class="form-control" value="{{ acta.ber_antes if acta else '' }}"></td><td><input type="text" name="ber_despues" class="form-control" value="{{ acta.ber_despues if acta else '' }}"></td></tr>
+                        <tr><td>RSSI GPRS (dBm)</td><td><input type="text" name="rssi_antes" class="form-control" value="{{ acta.rssi_antes if acta else '' }}"></td><td><input type="text" name="rssi_despues" class="form-control" value="{{ acta.rssi_despues if acta else '' }}"></td></tr>
+                        <tr><td>Latencia RTT (ms)</td><td><input type="text" name="latencia_antes" class="form-control" value="{{ acta.latencia_antes if acta else '' }}"></td><td><input type="text" name="latencia_despues" class="form-control" value="{{ acta.latencia_despues if acta else '' }}"></td></tr>
+                        <tr><td>Estado canal SCADA</td><td><input type="text" name="estado_canal_antes" class="form-control" value="{{ acta.estado_canal_antes if acta else '' }}"></td><td><input type="text" name="estado_canal_despues" class="form-control" value="{{ acta.estado_canal_despues if acta else '' }}"></td></tr>
+                        <tr><td>Alarmas activas NMS</td><td><input type="text" name="alarmas_nms_antes" class="form-control" value="{{ acta.alarmas_nms_antes if acta else '' }}"></td><td><input type="text" name="alarmas_nms_despues" class="form-control" value="{{ acta.alarmas_nms_despues if acta else '' }}"></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. PRUEBAS DE ACEPTACIÓN -->
+    <div class="card mb-3">
+        <div class="card-header bg-info text-white">3. RESULTADOS DE PRUEBAS DE ACEPTACIÓN</div>
+        <div class="card-body">
+            <table class="table table-bordered table-sm">
+                <thead class="table-light">
+                    <tr><th>Prueba realizada</th><th>Valor obtenido</th><th>Valor umbral</th><th>¿Aprobada?</th><th>Observación</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Certificación OTDR</td><td><input type="text" class="form-control form-control-sm"></td><td>≤ umbral diseño</td><td><select name="pruebas_otdr_aprobada" class="form-select form-select-sm"><option>SÍ</option><option>NO</option></select></td><td><input type="text" class="form-control form-control-sm"></td></tr>
+                    <tr><td>BERT</td><td><input type="text" class="form-control form-control-sm"></td><td>≤ 1×10⁶</td><td><select name="pruebas_bert_aprobada" class="form-select form-select-sm"><option>SÍ</option><option>NO</option></select></td><td><input type="text" class="form-control form-control-sm"></td></tr>
+                    <tr><td>Potencia óptica en recepción</td><td><input type="text" class="form-control form-control-sm"></td><td>≥ –28 dBm</td><td><select name="pruebas_potencia_aprobada" class="form-select form-select-sm"><option>SÍ</option><option>NO</option></select></td><td><input type="text" class="form-control form-control-sm"></td></tr>
+                    <tr><td>RSSI GPRS en campo</td><td><input type="text" class="form-control form-control-sm"></td><td>≥ –90 dBm</td><td><select name="pruebas_rssi_aprobada" class="form-select form-select-sm"><option>SÍ</option><option>NO</option></select></td><td><input type="text" class="form-control form-control-sm"></td></tr>
+                    <tr><td>Latencia round-trip GPRS</td><td><input type="text" class="form-control form-control-sm"></td><td>≤ 500 ms</td><td><select name="pruebas_latencia_aprobada" class="form-select form-select-sm"><option>SÍ</option><option>NO</option></select></td><td><input type="text" class="form-control form-control-sm"></td></tr>
+                    <tr><td>Ping RTU–SCADA exitoso</td><td><input type="text" class="form-control form-control-sm"></td><td>0% pérdida</td><td><select name="pruebas_ping_aprobada" class="form-select form-select-sm"><option>SÍ</option><option>NO</option></select></td><td><input type="text" class="form-control form-control-sm"></td></tr>
+                    <tr><td>Comunicación RTU–SCADA en NMS</td><td><input type="text" class="form-control form-control-sm"></td><td>Activo y estable ≥15 min</td><td><select name="pruebas_comunicacion_aprobada" class="form-select form-select-sm"><option>SÍ</option><option>NO</option></select></td><td><input type="text" class="form-control form-control-sm"></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. DECLARACIÓN -->
+    <div class="card mb-3">
+        <div class="card-header bg-info text-white">4. DECLARACIÓN DE NORMALIZACIÓN</div>
+        <div class="card-body">
+            <p class="text-muted small">El técnico que suscribe certifica que el activo de comunicaciones descrito en el presente documento ha sido intervenido conforme al procedimiento PR-COM-MNT-01, que las pruebas de aceptación fueron realizadas y aprobadas, y que el canal fue entregado al Operador del Centro de Control en condiciones de operación normal, con comunicación SCADA verificada y sin alarmas activas en el NMS al momento de la entrega.</p>
+            <div class="mb-2"><label>Declaración / Observaciones adicionales</label><textarea name="declaracion_normalizacion" class="form-control" rows="2">{{ acta.declaracion_normalizacion if acta else '' }}</textarea></div>
+        </div>
+    </div>
+
+    <!-- 5. FIRMAS -->
+    <div class="card mb-3">
+        <div class="card-header bg-info text-white">5. FIRMAS DE ENTREGA Y RECIBO</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-2"><label>EJECUTOR (Nombre)</label><input type="text" name="ejecutor_firma" class="form-control" value="{{ acta.ejecutor_firma if acta else '' }}"></div>
+                <div class="col-md-4 mb-2"><label>RECIBE (Nombre)</label><input type="text" name="recibe_firma" class="form-control" value="{{ acta.recibe_firma if acta else '' }}"></div>
+                <div class="col-md-4 mb-2"><label>VALIDA - Coordinador TO</label><input type="text" name="valida_coordinador_firma" class="form-control" value="{{ acta.valida_coordinador_firma if acta else '' }}"></div>
+            </div>
+            <div class="row"><div class="col-md-4 mb-2"><label>Fecha</label><input type="date" name="fecha_firma" class="form-control" value="{{ acta.fecha_firma if acta else '' }}"></div></div>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+        <a href="{{ url_for('ver_ot', ot_id=ot.id) }}" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-info btn-lg text-white"><i class="bi bi-save"></i> Guardar Acta de Entrega</button>
+    </div>
+</form>
+{% endblock %}

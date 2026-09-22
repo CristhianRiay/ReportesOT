@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Revisión de Documentos{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="bi bi-check-circle"></i> Documentos Pendientes de Revisión</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if documentos %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>OT</th>
+                            <th>Documento</th>
+                            <th>Ejecutor</th>
+                            <th>Fecha Envío</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in documentos %}
+                        <tr>
+                            <td><strong>{{ doc.codigo_ot }}</strong></td>
+                            <td>{{ doc.tipo_documento }}</td>
+                            <td>{{ doc.ejecutor_nombre }}</td>
+                            <td>{{ doc.fecha_actualizacion }}</td>
+                            <td>
+                                <a href="{{ url_for('ver_ot', ot_id=doc.ot_id) }}" class="btn btn-sm btn-info">
+                                    <i class="bi bi-eye"></i> Ver
+                                </a>
+                                
+                                <form action="{{ url_for('aprobar_documento', ot_id=doc.ot_id, tipo_documento=doc.tipo_documento, accion='APROBAR') }}" 
+                                      method="POST" style="display: inline;">
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="bi bi-check"></i> Aprobar
+                                    </button>
+                                </form>
+                                
+                                <form action="{{ url_for('aprobar_documento', ot_id=doc.ot_id, tipo_documento=doc.tipo_documento, accion='DEVOLVER') }}" 
+                                      method="POST" style="display: inline;">
+                                    <input type="text" name="observaciones" placeholder="Motivo devolución" class="form-control form-control-sm d-inline-block" style="width: 200px;">
+                                    <button type="submit" class="btn btn-sm btn-warning">
+                                        <i class="bi bi-arrow-return-left"></i> Devolver
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-center text-muted">No hay documentos pendientes de revisión</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

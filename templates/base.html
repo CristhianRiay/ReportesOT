@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema OT - Comunicaciones{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #34a853;
+            --warning-color: #fbbc04;
+            --danger-color: #ea4335;
+        }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f0f2f5; 
+        }
+        .navbar-brand { 
+            font-weight: 700; 
+            font-size: 1.3em;
+        }
+        .documento-card {
+            background: white;
+            border: 2px solid #e8f0fe;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            transition: all 0.3s;
+        }
+        .documento-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .documento-card h5 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .formato-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .formato-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        .table-formato th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        .badge-urgente { background: #dc3545; }
+        .badge-alta { background: #fd7e14; }
+        .badge-normal { background: #ffc107; color: #000; }
+        .badge-baja { background: #28a745; }
+        .estado-asignada { background: #fff3cd; color: #856404; }
+        .estado-en-curso { background: #ffe0b2; color: #e65100; }
+        .estado-cerrada { background: #d4edda; color: #155724; }
+        .btn-diligenciar {
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        .btn-diligenciar:hover {
+            background: #1557b0;
+            color: white;
+        }
+        .flash-messages {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            z-index: 1050;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .card { border: none !important; box-shadow: none !important; }
+        }
+        @media (max-width: 768px) {
+            .formato-section { padding: 10px; }
+            table { font-size: 0.85em; }
+            .btn-sm { padding: 4px 8px; font-size: 0.8em; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary no-print">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">🔧 Sistema OT - Comunicaciones</a>
+            {% if session.usuario_id %}
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text text-white me-3">
+                    {{ session.usuario_nombre }} | {{ session.usuario_rol }}
+                </span>
+                <a class="btn btn-outline-light btn-sm" href="{{ url_for('logout') }}">
+                    <i class="bi bi-box-arrow-right"></i> Salir
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-3">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center text-muted py-3 mt-5 no-print">
+        <small>Sistema de Gestión de Órdenes de Trabajo - Comunicaciones © 2026</small>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

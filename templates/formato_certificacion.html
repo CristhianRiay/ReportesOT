@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}Formato 3: Certificación Fibra Óptica{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h3 class="mb-3"><i class="bi bi-check2-square"></i> Formato 3: Certificación de Enlace FO - {{ ot.codigo_ot }}</h3>
+    </div>
+</div>
+
+<form method="POST">
+    <!-- 1. DATOS GENERALES -->
+    <div class="card mb-3">
+        <div class="card-header bg-success text-white">1. DATOS GENERALES DEL ENLACE</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-2"><label>Fecha prueba</label><input type="date" name="fecha_prueba" class="form-control" value="{{ certificacion.fecha_prueba if certificacion else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>Técnico certificador</label><input type="text" name="tecnico_certificador" class="form-control" value="{{ certificacion.tecnico_certificador if certificacion else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>Equipo OTDR</label><input type="text" name="equipo_otdr" class="form-control" value="{{ certificacion.equipo_otdr if certificacion else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>Enlace / tramo</label><input type="text" name="enlace_tramo" class="form-control" value="{{ certificacion.enlace_tramo if certificacion else '' }}"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-2"><label>Origen</label><input type="text" name="origen" class="form-control" value="{{ certificacion.origen if certificacion else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>Destino</label><input type="text" name="destino" class="form-control" value="{{ certificacion.destino if certificacion else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>Longitud total (km)</label><input type="number" step="0.01" name="longitud_total" class="form-control" value="{{ certificacion.longitud_total if certificacion else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>Tipo de fibra</label>
+                    <select name="tipo_fibra" class="form-select">
+                        <option {% if certificacion and certificacion.tipo_fibra=='SM_G652D' %}selected{% endif %}>SM G.652.D</option>
+                        <option {% if certificacion and certificacion.tipo_fibra=='G657' %}selected{% endif %}>G.657</option>
+                        <option {% if certificacion and certificacion.tipo_fibra=='MM_OM3' %}selected{% endif %}>MM OM3</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-2"><label>Longitud de onda</label>
+                    <select name="longitud_onda" class="form-select"><option>1310 nm</option><option>1550 nm</option></select>
+                </div>
+                <div class="col-md-3 mb-2"><label>N° fibras cable</label><input type="number" name="num_fibras_cable" class="form-control" value="{{ certificacion.num_fibras_cable if certificacion else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>N° fibras certificadas</label><input type="number" name="num_fibras_certificadas" class="form-control" value="{{ certificacion.num_fibras_certificadas if certificacion else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>Calibración OTDR</label>
+                    <select name="calibracion_otdr" class="form-select"><option>Vigente</option><option>Vencida</option></select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. RESULTADOS OTDR -->
+    <div class="card mb-3">
+        <div class="card-header bg-success text-white">2. RESULTADOS OTDR POR FIBRA</div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm" id="tabla-otdr">
+                    <thead class="table-light">
+                        <tr><th>N°</th><th>A→B (dB/km)</th><th>B→A (dB/km)</th><th>Prom (dB/km)</th><th>Pérd. total (dB)</th><th>Umbral (dB)</th><th>Reflex (dB)</th><th>Empalmes</th><th>Pérd. máx emp (dB)</th><th>Pérd. máx con (dB)</th><th>Long. (km)</th><th>¿Aprobado?</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        {% for o in otdr_results %}
+                        <tr>
+                            <td><input type="number" name="otdr_num_fibra[]" class="form-control form-control-sm" value="{{ o.num_fibra }}" style="width:60px"></td>
+                            <td><input type="number" step="0.001" name="otdr_ab[]" class="form-control form-control-sm" value="{{ o.extremo_ab_atenuacion }}"></td>
+                            <td><input type="number" step="0.001" name="otdr_ba[]" class="form-control form-control-sm" value="{{ o.extremo_ba_atenuacion }}"></td>
+                            <td><input type="number" step="0.001" name="otdr_promedio[]" class="form-control form-control-sm" value="{{ o.promedio_atenuacion }}"></td>
+                            <td><input type="number" step="0.01" name="otdr_perdida[]" class="form-control form-control-sm" value="{{ o.perdida_total }}"></td>
+                            <td><input type="number" step="0.01" name="otdr_umbral[]" class="form-control form-control-sm" value="{{ o.umbral_perdida }}"></td>
+                            <td><input type="number" step="0.01" name="otdr_reflexiones[]" class="form-control form-control-sm" value="{{ o.reflexiones }}"></td>
+                            <td><input type="number" name="otdr_empalmes[]" class="form-control form-control-sm" value="{{ o.num_empalmes }}"></td>
+                            <td><input type="number" step="0.01" name="otdr_max_empalme[]" class="form-control form-control-sm" value="{{ o.perdida_max_empalme }}"></td>
+                            <td><input type="number" step="0.01" name="otdr_max_conector[]" class="form-control form-control-sm" value="{{ o.perdida_max_conector }}"></td>
+                            <td><input type="number" step="0.01" name="otdr_longitud[]" class="form-control form-control-sm" value="{{ o.longitud_medida }}"></td>
+                            <td><select name="otdr_aprobado[]" class="form-select form-select-sm"><option {% if o.aprobado=='SI' %}selected{% endif %}>SI</option><option {% if o.aprobado=='NO' %}selected{% endif %}>NO</option></select></td>
+                            <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td><input type="number" name="otdr_num_fibra[]" class="form-control form-control-sm" style="width:60px"></td>
+                            <td><input type="number" step="0.001" name="otdr_ab[]" class="form-control form-control-sm"></td>
+                            <td><input type="number" step="0.001" name="otdr_ba[]" class="form-control form-control-sm"></td>
+                            <td><input type="number" step="0.001" name="otdr_promedio[]" class="form-control form-control-sm"></td>
+                            <td><input type="number" step="0.01" name="otdr_perdida[]" class="form-control form-control-sm"></td>
+                            <td><input type="number" step="0.01" name="otdr_umbral[]" class="form-control form-control-sm"></td>
+                            <td><input type="number" step="0.01" name="otdr_reflexiones[]" class="form-control form-control-sm"></td>
+                            <td><input type="number" name="otdr_empalmes[]" class="form-control form-control-sm"></td>
+                            <td><input type="number" step="0.01" name="otdr_max_empalme[]" class="form-control form-control-sm"></td>
+                            <td><input type="number" step="0.01" name="otdr_max_conector[]" class="form-control form-control-sm"></td>
+                            <td><input type="number" step="0.01" name="otdr_longitud[]" class="form-control form-control-sm"></td>
+                            <td><select name="otdr_aprobado[]" class="form-select form-select-sm"><option>SI</option><option>NO</option></select></td>
+                            <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-success" onclick="agregarFila('tabla-otdr')">+ Agregar Fibra OTDR</button>
+        </div>
+    </div>
+
+    <!-- 3. RESULTADOS BERT -->
+    <div class="card mb-3">
+        <div class="card-header bg-success text-white">3. RESULTADOS BERT (BIT ERROR RATE TEST)</div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm" id="tabla-bert">
+                    <thead class="table-light">
+                        <tr><th>N°</th><th>Velocidad (Mbps)</th><th>Duración (s)</th><th>Bits transmitidos</th><th>Bits con error</th><th>BER obtenido</th><th>BER umbral</th><th>¿Aprobado?</th><th>Observación</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        {% for b in bert_results %}
+                        <tr>
+                            <td><input type="number" name="bert_num_fibra[]" class="form-control form-control-sm" value="{{ b.num_fibra }}" style="width:60px"></td>
+                            <td><input type="number" name="bert_velocidad[]" class="form-control form-control-sm" value="{{ b.velocidad_prueba }}"></td>
+                            <td><input type="number" name="bert_duracion[]" class="form-control form-control-sm" value="{{ b.duracion_prueba }}"></td>
+                            <td><input type="number" name="bert_transmitidos[]" class="form-control form-control-sm" value="{{ b.bits_transmitidos }}"></td>
+                            <td><input type="number" name="bert_error[]" class="form-control form-control-sm" value="{{ b.bits_con_error }}"></td>
+                            <td><input type="text" name="bert_ber[]" class="form-control form-control-sm" value="{{ b.ber_obtenido }}"></td>
+                            <td><input type="text" name="bert_umbral[]" class="form-control form-control-sm" value="{{ b.ber_umbral }}"></td>
+                            <td><select name="bert_aprobado[]" class="form-select form-select-sm"><option {% if b.aprobado=='SI' %}selected{% endif %}>SI</option><option {% if b.aprobado=='NO' %}selected{% endif %}>NO</option></select></td>
+                            <td><input type="text" name="bert_observacion[]" class="form-control form-control-sm" value="{{ b.observacion }}"></td>
+                            <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td><input type="number" name="bert_num_fibra[]" class="form-control form-control-sm" style="width:60px"></td>
+                            <td><input type="number" name="bert_velocidad[]" class="form-control form-control-sm"></td>
+                            <td><input type="number" name="bert_duracion[]" class="form-control form-control-sm"></td>
+                            <td><input type="number" name="bert_transmitidos[]" class="form-control form-control-sm"></td>
+                            <td><input type="number" name="bert_error[]" class="form-control form-control-sm"></td>
+                            <td><input type="text" name="bert_ber[]" class="form-control form-control-sm"></td>
+                            <td><input type="text" name="bert_umbral[]" class="form-control form-control-sm"></td>
+                            <td><select name="bert_aprobado[]" class="form-select form-select-sm"><option>SI</option><option>NO</option></select></td>
+                            <td><input type="text" name="bert_observacion[]" class="form-control form-control-sm"></td>
+                            <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-success" onclick="agregarFila('tabla-bert')">+ Agregar Fibra BERT</button>
+        </div>
+    </div>
+
+    <!-- 4. CONCLUSIÓN -->
+    <div class="card mb-3">
+        <div class="card-header bg-success text-white">4. CONCLUSIÓN DE CERTIFICACIÓN</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-2"><label>Resultado general del enlace</label>
+                    <select name="resultado_general" class="form-select">
+                        <option {% if certificacion and certificacion.resultado_general=='APROBADO' %}selected{% endif %}>APROBADO</option>
+                        <option {% if certificacion and certificacion.resultado_general=='RECHAZADO' %}selected{% endif %}>RECHAZADO</option>
+                        <option {% if certificacion and certificacion.resultado_general=='CONDICIONADO' %}selected{% endif %}>CONDICIONADO</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-2"><label>Archivo reflectograma OTDR (.sor)</label><input type="text" name="archivo_reflectograma" class="form-control" value="{{ certificacion.archivo_reflectograma if certificacion else '' }}"></div>
+            </div>
+            <div class="mb-2"><label>Observaciones y recomendaciones</label><textarea name="observaciones_recomendaciones" class="form-control" rows="3">{{ certificacion.observaciones_recomendaciones if certificacion else '' }}</textarea></div>
+            <div class="row">
+                <div class="col-md-4 mb-2"><label>Técnico certificador</label><input type="text" name="tecnico_firma" class="form-control" value="{{ certificacion.tecnico_firma if certificacion else '' }}"></div>
+                <div class="col-md-4 mb-2"><label>Coordinador TO</label><input type="text" name="coordinador_firma" class="form-control" value="{{ certificacion.coordinador_firma if certificacion else '' }}"></div>
+                <div class="col-md-4 mb-2"><label>Director Operación</label><input type="text" name="director_operacion_firma" class="form-control" value="{{ certificacion.director_operacion_firma if certificacion else '' }}"></div>
+            </div>
+            <div class="row"><div class="col-md-4 mb-2"><label>Fecha</label><input type="date" name="fecha_firma" class="form-control" value="{{ certificacion.fecha_firma if certificacion else '' }}"></div></div>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+        <a href="{{ url_for('ver_ot', ot_id=ot.id) }}" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-success btn-lg"><i class="bi bi-save"></i> Guardar Certificación</button>
+    </div>
+</form>
+
+<script>
+function agregarFila(tablaId) {
+    const tabla = document.getElementById(tablaId).getElementsByTagName('tbody')[0];
+    const nuevaFila = tabla.rows[tabla.rows.length - 1].cloneNode(true);
+    nuevaFila.querySelectorAll('input').forEach(input => input.value = '');
+    tabla.appendChild(nuevaFila);
+}
+</script>
+{% endblock %}

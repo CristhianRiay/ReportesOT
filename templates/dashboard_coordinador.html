@@ -1,0 +1,82 @@
+    {% extends "base.html" %}
+    {% block title %}Panel Coordinador{% endblock %}
+
+    {% block content %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-3"><i class="bi bi-person-badge"></i> Panel del Coordinador</h2>
+            <a href="{{ url_for('gestionar_ejecutores') }}" class="btn btn-info mb-3">
+            <i class="bi bi-people"></i> Gestionar Ejecutores
+            </a>
+            <a href="{{ url_for('revision_documentos') }}" class="btn btn-warning mb-3">
+                <i class="bi bi-check-circle"></i> Revisar Documentos
+            </a>
+            <a href="{{ url_for('crear_ot') }}" class="btn btn-success btn-lg">
+                <i class="bi bi-plus-circle"></i> Crear Nueva OT
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-clipboard-list"></i> Órdenes de Trabajo</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Código OT</th>
+                                    <th>Tipo</th>
+                                    <th>Prioridad</th>
+                                    <th>Estado</th>
+                                    <th>Activo Afectado</th>
+                                    <th>Subestación</th>
+                                    <th>Ejecutor</th>
+                                    <th>Fecha Creación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ot in ots %}
+                                <tr>
+                                    <td><strong>{{ ot.codigo_ot }}</strong></td>
+                                    <td>{{ ot.tipo_ot }}</td>
+                                    <td>
+                                        <span class="badge badge-{{ ot.prioridad|lower }}">
+                                            {{ ot.prioridad }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge estado-{{ ot.estado|lower|replace(' ', '-') }}">
+                                            {{ ot.estado }}
+                                        </span>
+                                    </td>
+                                    <td>{{ ot.activo_canal_afectado }}</td>
+                                    <td>{{ ot.subestacion_nodo or 'N/A' }}</td>
+                                    <td>{{ ot.ejecutor_nombre or 'Sin asignar' }}</td>
+                                    <td>{{ ot.fecha_creacion }}</td>
+                                    <td>
+                                        <a href="{{ url_for('ver_ot', ot_id=ot.id) }}" 
+                                        class="btn btn-sm btn-primary">
+                                            <i class="bi bi-eye"></i> Ver
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted">
+                                        No hay órdenes de trabajo registradas
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}

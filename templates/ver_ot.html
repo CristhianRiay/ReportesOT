@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% block title %}Documentos {{ ot.codigo_ot }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="mb-2">
+            <i class="bi bi-folder2-open"></i> 
+            Documentos de la {{ ot.codigo_ot }}
+        </h2>
+        <p class="text-muted">
+            <strong>Sitio:</strong> {{ ot.subestacion_nodo or 'N/A' }} | 
+            <strong>Tipo:</strong> {{ ot.tipo_ot }} | 
+            <strong>Estado:</strong> 
+            <span class="badge estado-{{ ot.estado|lower|replace(' ', '-') }}">
+                {{ ot.estado }}
+            </span>
+        </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        
+        <!-- SELECCIÓN DE FORMATOS (solo si la OT no está cerrada) -->
+        {% if ot.estado != 'CERRADA' %}
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0">
+                    <i class="bi bi-check2-square"></i> 
+                    Selecciona los formatos a diligenciar (no todos son obligatorios)
+                </h6>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('actualizar_documentos', ot_id=ot.id) }}" method="POST">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" 
+                                       name="incluir_OT" id="incluir_OT"
+                                       {% if not documentos or documentos.ot_incluir %}checked{% endif %}>
+                                <label class="form-check-label" for="incluir_OT">
+                                    <strong>1. Orden de Trabajo</strong>
+                                    {% if documentos %}
+                                    <br><small class="text-muted">Estado: {{ documentos.ot_estado }}</small>
+                                    {% endif %}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" 
+                                       name="incluir_INFORME_FALLA" id="incluir_INFORME_FALLA"
+                                       {% if not documentos or documentos.informe_incluir %}checked{% endif %}>
+                                <label class="form-check-label" for="incluir_INFORME_FALLA">
+                                    <strong>2. Informe de Falla</strong>
+                                    {% if documentos %}
+                                    <br><small class="text-muted">Estado: {{ documentos.informe_estado }}</small>
+                                    {% endif %}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" 
+                                       name="incluir_CERTIFICACION" id="incluir_CERTIFICACION"
+                                       {% if not documentos or documentos.cert_incluir %}checked{% endif %}>
+                                <label class="form-check-label" for="incluir_CERTIFICACION">
+                                    <strong>3. Certificación FO</strong>
+                                    {% if documentos %}
+                                    <br><small class="text-muted">Estado: {{ documentos.cert_estado }}</small>
+                                    {% endif %}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" 
+                                       name="incluir_ACTA_ENTREGA" id="incluir_ACTA_ENTREGA"
+                                       {% if not documentos or documentos.acta_incluir %}checked{% endif %}>
+                                <label class="form-check-label" for="incluir_ACTA_ENTREGA">
+                                    <strong>4. Acta de Entrega</strong>
+                                    {% if documentos %}
+                                    <br><small class="text-muted">Estado: {{ documentos.acta_estado }}</small>
+                                    {% endif %}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-warning btn-sm mt-2">
+                        <i class="bi bi-save"></i> Actualizar selección
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> 
+            <strong>Seleccione el formato a diligenciar o consultar:</strong>
+        </div>
+
+        <!-- Formato 1: OT (solo se muestra si está marcado para incluir) -->
+        {% if not documentos or documentos.ot_incluir %}
+        <div class="documento-card">
+            <div class="row align-items-center">
+                <div class="col-md-10">
+                    <h5 class="mb-2">
+                        <i class="bi bi-clipboard-list"></i> 
+                        1. Orden de Trabajo
+                    </h5>
+                    <p class="text-muted mb-0">
+                        Encabezado, autorización, personal, ejecución, cierre.
+                    </p>
+                    {% if documentos %}
+                    <small class="badge bg-{% if documentos.ot_estado=='APROBADO' %}success{% elif documentos.ot_estado=='ENVIADO' %}info{% else %}secondary{% endif %}">
+                        {{ documentos.ot_estado }}
+                    </small>
+                    {% endif %}
+                </div>
+                <div class="col-md-2 text-end">
+                    <a href="{{ url_for('formato_ot', ot_id=ot.id) }}" 
+                       class="btn-diligenciar">
+                        <i class="bi bi-pencil"></i> Diligenciar
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Formato 2: Informe de Falla -->
+        {% if not documentos or documentos.informe_incluir %}
+        <div class="documento-card">
+            <div class="row align-items-center">
+                <div class="col-md-10">
+                    <h5 class="mb-2">
+                        <i class="bi bi-exclamation-triangle"></i> 
+                        2. Informe de Falla de Canal
+                    </h5>
+                    <p class="text-muted mb-0">
+                        Identificación del evento y diagnóstico de la novedad.
+                    </p>
+                    {% if documentos %}
+                    <small class="badge bg-{% if documentos.informe_estado=='APROBADO' %}success{% elif documentos.informe_estado=='ENVIADO' %}info{% else %}secondary{% endif %}">
+                        {{ documentos.informe_estado }}
+                    </small>
+                    {% endif %}
+                </div>
+                <div class="col-md-2 text-end">
+                    <a href="{{ url_for('formato_informe_falla', ot_id=ot.id) }}" 
+                       class="btn-diligenciar">
+                        <i class="bi bi-pencil"></i> Diligenciar
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Formato 3: Certificación -->
+        {% if not documentos or documentos.cert_incluir %}
+        <div class="documento-card">
+            <div class="row align-items-center">
+                <div class="col-md-10">
+                    <h5 class="mb-2">
+                        <i class="bi bi-check2-square"></i> 
+                        3. Certificación de Enlace de Fibra Óptica
+                    </h5>
+                    <p class="text-muted mb-0">
+                        Resultados OTDR y BERT del enlace intervenido.
+                    </p>
+                    {% if documentos %}
+                    <small class="badge bg-{% if documentos.cert_estado=='APROBADO' %}success{% elif documentos.cert_estado=='ENVIADO' %}info{% else %}secondary{% endif %}">
+                        {{ documentos.cert_estado }}
+                    </small>
+                    {% endif %}
+                </div>
+                <div class="col-md-2 text-end">
+                    <a href="{{ url_for('formato_certificacion', ot_id=ot.id) }}" 
+                       class="btn-diligenciar">
+                        <i class="bi bi-pencil"></i> Diligenciar
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Formato 4: Acta de Entrega -->
+        {% if not documentos or documentos.acta_incluir %}
+        <div class="documento-card">
+            <div class="row align-items-center">
+                <div class="col-md-10">
+                    <h5 class="mb-2">
+                        <i class="bi bi-file-earmark-check"></i> 
+                        4. Acta de Entrega de Activo
+                    </h5>
+                    <p class="text-muted mb-0">
+                        Estado antes/después y entrega al Centro de Control (CCE).
+                    </p>
+                    {% if documentos %}
+                    <small class="badge bg-{% if documentos.acta_estado=='APROBADO' %}success{% elif documentos.acta_estado=='ENVIADO' %}info{% else %}secondary{% endif %}">
+                        {{ documentos.acta_estado }}
+                    </small>
+                    {% endif %}
+                </div>
+                <div class="col-md-2 text-end">
+                    <a href="{{ url_for('formato_acta_entrega', ot_id=ot.id) }}" 
+                       class="btn-diligenciar">
+                        <i class="bi bi-pencil"></i> Diligenciar
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Botón cerrar OT (solo Coordinador) -->
+        {% if session.usuario_rol == 'COORDINADOR' and ot.estado != 'CERRADA' %}
+        <div class="card mt-4 border-danger">
+            <div class="card-body">
+                <h6 class="text-danger">
+                    <i class="bi bi-lock"></i> Cierre de OT
+                </h6>
+                <p class="small text-muted mb-2">
+                    La OT se cerrará con los formatos que hayas seleccionado. 
+                    No es necesario tener los 4 diligenciados.
+                </p>
+                <form action="{{ url_for('cerrar_ot', ot_id=ot.id) }}" method="POST" 
+                      onsubmit="return confirm('¿Seguro que deseas cerrar esta OT?');">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-check-circle"></i> Cerrar OT
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="mt-3">
+            <a href="{{ url_for('dashboard_coordinador' if session.usuario_rol == 'COORDINADOR' else 'dashboard_ejecutor') }}" 
+               class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

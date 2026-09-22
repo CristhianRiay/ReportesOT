@@ -1,0 +1,4 @@
+*.db
+*.sqbpro
+__pycache__/
+*.pyc

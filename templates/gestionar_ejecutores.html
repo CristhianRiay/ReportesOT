@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Gestionar Ejecutores{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-person-plus"></i> Crear Nuevo Ejecutor</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre completo *</label>
+                        <input type="text" name="nombre" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Usuario *</label>
+                        <input type="text" name="username" class="form-control" required>
+                        <small class="text-muted">Sin espacios, solo letras y números</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña *</label>
+                        <input type="text" name="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save"></i> Crear Ejecutor
+                    </button>
+                    <a href="{{ url_for('dashboard_coordinador') }}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-people"></i> Ejecutores Registrados ({{ ejecutores|length }})</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Usuario</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in ejecutores %}
+                        <tr>
+                            <td>{{ e.nombre }}</td>
+                            <td><code>{{ e.username }}</code></td>
+                            <td>
+                                {% if e.activo %}
+                                <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('toggle_ejecutor', ejecutor_id=e.id) }}" 
+                                   class="btn btn-sm btn-{% if e.activo %}warning{% else %}success{% endif %}">
+                                    {% if e.activo %}Desactivar{% else %}Activar{% endif %}
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">
+                                No hay ejecutores registrados
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

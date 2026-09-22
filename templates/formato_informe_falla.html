@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block title %}Formato 2: Informe de Falla{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h3 class="mb-3"><i class="bi bi-exclamation-triangle"></i> Formato 2: Informe de Falla - {{ ot.codigo_ot }}</h3>
+    </div>
+</div>
+
+<form method="POST">
+    <!-- 1. IDENTIFICACIÓN DEL EVENTO -->
+    <div class="card mb-3">
+        <div class="card-header bg-danger text-white">1. IDENTIFICACIÓN DEL EVENTO</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-2"><strong>N° OT:</strong> {{ ot.codigo_ot }}</div>
+                <div class="col-md-3 mb-2"><label>Fecha detección</label><input type="date" name="fecha_deteccion" class="form-control" value="{{ informe.fecha_deteccion if informe else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>Hora detección</label><input type="time" name="hora_deteccion" class="form-control" value="{{ informe.hora_deteccion if informe else '' }}"></div>
+                <div class="col-md-3 mb-2">
+                    <label>Prioridad</label>
+                    <select name="prioridad" class="form-select">
+                        <option value="CRITICA" {% if informe and informe.prioridad=='CRITICA' %}selected{% endif %}>CRÍTICA</option>
+                        <option value="MAYOR" {% if informe and informe.prioridad=='MAYOR' %}selected{% endif %}>MAYOR</option>
+                        <option value="MENOR" {% if informe and informe.prioridad=='MENOR' %}selected{% endif %}>MENOR</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-2"><label>Activo / canal afectado</label><input type="text" name="activo_canal_afectado" class="form-control" value="{{ informe.activo_canal_afectado if informe else ot.activo_canal_afectado or '' }}"></div>
+                <div class="col-md-4 mb-2"><label>Subestación / nodo</label><input type="text" name="subestacion_nodo" class="form-control" value="{{ informe.subestacion_nodo if informe else ot.subestacion_nodo or '' }}"></div>
+                <div class="col-md-4 mb-2">
+                    <label>Medio afectado</label>
+                    <select name="medio_afectado" class="form-select">
+                        <option value="FO" {% if informe and informe.medio_afectado=='FO' %}selected{% endif %}>Fibra Óptica</option>
+                        <option value="GPRS" {% if informe and informe.medio_afectado=='GPRS' %}selected{% endif %}>GPRS</option>
+                        <option value="AMBOS" {% if informe and informe.medio_afectado=='AMBOS' %}selected{% endif %}>Ambos</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-2"><label>Detectado por</label><input type="text" name="detectado_por" class="form-control" value="{{ informe.detectado_por if informe else '' }}"></div>
+                <div class="col-md-3 mb-2">
+                    <label>Cargo</label>
+                    <select name="cargo_detecto" class="form-select">
+                        <option value="Operador CCE" {% if informe and informe.cargo_detecto=='Operador CCE' %}selected{% endif %}>Operador CCE</option>
+                        <option value="Técnico" {% if informe and informe.cargo_detecto=='Técnico' %}selected{% endif %}>Técnico</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2"><label>Turno</label><input type="text" name="turno" class="form-control" value="{{ informe.turno if informe else '' }}"></div>
+                <div class="col-md-3 mb-2">
+                    <label>Impacto en SCADA</label>
+                    <select name="impacto_scada" class="form-select">
+                        <option value="PARCIAL" {% if informe and informe.impacto_scada=='PARCIAL' %}selected{% endif %}>Parcial</option>
+                        <option value="TOTAL" {% if informe and informe.impacto_scada=='TOTAL' %}selected{% endif %}>Total</option>
+                        <option value="SIN_IMPACTO" {% if informe and informe.impacto_scada=='SIN_IMPACTO' %}selected{% endif %}>Sin impacto</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. DESCRIPCIÓN DE LA FALLA -->
+    <div class="card mb-3">
+        <div class="card-header bg-danger text-white">2. DESCRIPCIÓN DE LA FALLA</div>
+        <div class="card-body">
+            <div class="mb-2"><label>Alarmas observadas en NMS / SCADA</label><textarea name="alarmas_nms" class="form-control" rows="2">{{ informe.alarmas_nms if informe else '' }}</textarea></div>
+            <h6 class="mt-3">Parámetros anómalos registrados:</h6>
+            <div class="row">
+                <div class="col-md-3 mb-2"><label>Potencia RX (dBm)</label><input type="text" name="potencia_rx" class="form-control" value="{{ informe.potencia_rx if informe else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>BER</label><input type="text" name="ber" class="form-control" value="{{ informe.ber if informe else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>RSSI (dBm)</label><input type="text" name="rssi" class="form-control" value="{{ informe.rssi if informe else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>Latencia (ms)</label><input type="text" name="latencia" class="form-control" value="{{ informe.latencia if informe else '' }}"></div>
+            </div>
+            <div class="mb-2">
+                <label>Clasificación de falla:</label>
+                <div class="row">
+                    <div class="col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="clasificacion_falla[]" value="Ruptura FO"> <label class="form-check-label">Ruptura / corte FO</label></div></div>
+                    <div class="col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="clasificacion_falla[]" value="Degradación FO"> <label class="form-check-label">Degradación señal FO</label></div></div>
+                    <div class="col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="clasificacion_falla[]" value="Conector sucio/dañado FO"> <label class="form-check-label">Conector sucio/dañado FO</label></div></div>
+                    <div class="col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="clasificacion_falla[]" value="Sin señal GPRS"> <label class="form-check-label">Sin señal GPRS</label></div></div>
+                    <div class="col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="clasificacion_falla[]" value="Baja señal GPRS"> <label class="form-check-label">Baja señal GPRS</label></div></div>
+                    <div class="col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="clasificacion_falla[]" value="Timeout GPRS"> <label class="form-check-label">Timeout GPRS</label></div></div>
+                    <div class="col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="clasificacion_falla[]" value="Config. errónea APN"> <label class="form-check-label">Config. errónea APN</label></div></div>
+                    <div class="col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="clasificacion_falla[]" value="Falla equipo modem"> <label class="form-check-label">Falla equipo modem</label></div></div>
+                    <div class="col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="clasificacion_falla[]" value="Falla tarjeta SIM"> <label class="form-check-label">Falla tarjeta SIM</label></div></div>
+                    <div class="col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="clasificacion_falla[]" value="Otro"> <label class="form-check-label">Otro</label></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. DIAGNÓSTICO Y ACCIONES EJECUTADAS -->
+    <div class="card mb-3">
+        <div class="card-header bg-danger text-white">3. DIAGNÓSTICO Y ACCIONES EJECUTADAS</div>
+        <div class="card-body">
+            <div class="mb-2"><label>Diagnóstico inicial (remoto)</label><textarea name="diagnostico_inicial" class="form-control" rows="2">{{ informe.diagnostico_inicial if informe else '' }}</textarea></div>
+            <div class="mb-2"><label>Herramientas / equipos utilizados</label><input type="text" name="herramientas_usadas" class="form-control" value="{{ informe.herramientas_usadas if informe else '' }}" placeholder="OTDR / Fusionadora / BERT / Analizador GPRS / Laptop NMS / Multímetro / Otro"></div>
+            <div class="mb-2"><label>Acciones correctivas ejecutadas</label><textarea name="acciones_correctivas" class="form-control" rows="3">{{ informe.acciones_correctivas if informe else '' }}</textarea></div>
+            <h6 class="mt-3">Resultado pruebas post-intervención:</h6>
+            <div class="row">
+                <div class="col-md-3 mb-2"><label>Potencia RX (dBm)</label><input type="text" name="potencia_rx_post" class="form-control" value="{{ informe.potencia_rx_post if informe else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>BER</label><input type="text" name="ber_post" class="form-control" value="{{ informe.ber_post if informe else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>RSSI (dBm)</label><input type="text" name="rssi_post" class="form-control" value="{{ informe.rssi_post if informe else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>Latencia (ms)</label><input type="text" name="latencia_post" class="form-control" value="{{ informe.latencia_post if informe else '' }}"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-2"><label>Materiales / repuestos utilizados</label><input type="text" name="materiales_repuestos" class="form-control" value="{{ informe.materiales_repuestos if informe else '' }}"></div>
+                <div class="col-md-6 mb-2">
+                    <label>Requirió trabajo en campo</label>
+                    <div class="input-group">
+                        <select name="requirio_campo" class="form-select">
+                            <option value="SI" {% if informe and informe.requirio_campo=='SI' %}selected{% endif %}>Sí</option>
+                            <option value="NO" {% if informe and informe.requirio_campo=='NO' %}selected{% endif %}>No</option>
+                        </select>
+                        <input type="text" name="tecnicos_desplazados" class="form-control" placeholder="Técnico(s) desplazados" value="{{ informe.tecnicos_desplazados if informe else '' }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. TIEMPOS DE GESTIÓN -->
+    <div class="card mb-3">
+        <div class="card-header bg-danger text-white">4. TIEMPOS DE GESTIÓN</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-2"><label>Hora detección alarma</label><input type="time" name="hora_deteccion_alarma" class="form-control" value="{{ informe.hora_deteccion_alarma if informe else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>Hora notificación Coordinador</label><input type="time" name="hora_notificacion_coordinador" class="form-control" value="{{ informe.hora_notificacion_coordinador if informe else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>Hora inicio intervención</label><input type="time" name="hora_inicio_intervencion" class="form-control" value="{{ informe.hora_inicio_intervencion if informe else '' }}"></div>
+                <div class="col-md-3 mb-2"><label>Hora normalización canal</label><input type="time" name="hora_normalizacion" class="form-control" value="{{ informe.hora_normalizacion if informe else '' }}"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-2"><label>Tiempo total de respuesta (min)</label><input type="number" name="tiempo_total_respuesta" class="form-control" value="{{ informe.tiempo_total_respuesta if informe else '' }}"></div>
+                <div class="col-md-6 mb-2"><label>Tiempo total indisponibilidad (min)</label><input type="number" name="tiempo_indisponibilidad" class="form-control" value="{{ informe.tiempo_indisponibilidad if informe else '' }}"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. ANÁLISIS PRELIMINAR DE CAUSA RAÍZ -->
+    <div class="card mb-3">
+        <div class="card-header bg-danger text-white">5. ANÁLISIS PRELIMINAR DE CAUSA RAÍZ</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-2"><div class="form-check"><input class="form-check-input" type="checkbox" name="causa_raiz_desgaste" value="SI" {% if informe and informe.causa_raiz_desgaste=='SI' %}checked{% endif %}> <label class="form-check-label">Desgaste por vibración / temperatura</label></div></div>
+                <div class="col-md-6 mb-2"><div class="form-check"><input class="form-check-input" type="checkbox" name="causa_raiz_vandalismo" value="SI" {% if informe and informe.causa_raiz_vandalismo=='SI' %}checked{% endif %}> <label class="form-check-label">Vandalismo</label></div></div>
+                <div class="col-md-6 mb-2"><div class="form-check"><input class="form-check-input" type="checkbox" name="causa_raiz_configuracion" value="SI" {% if informe and informe.causa_raiz_configuracion=='SI' %}checked{% endif %}> <label class="form-check-label">Configuración incorrecta</label></div></div>
+                <div class="col-md-6 mb-2"><input type="text" name="causa_raiz_otro" class="form-control" placeholder="Otro" value="{{ informe.causa_raiz_otro if informe else '' }}"></div>
+            </div>
+            <div class="mt-2"><label>Descripción detallada causa raíz</label><textarea name="descripcion_causa_raiz" class="form-control" rows="3">{{ informe.descripcion_causa_raiz if informe else '' }}</textarea></div>
+        </div>
+    </div>
+
+    <!-- 6. FIRMAS Y APROBACIÓN -->
+    <div class="card mb-3">
+        <div class="card-header bg-danger text-white">6. FIRMAS Y APROBACIÓN</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-2"><label>Ejecutor</label><input type="text" name="ejecutor_firma" class="form-control" value="{{ informe.ejecutor_firma if informe else '' }}"></div>
+                <div class="col-md-4 mb-2"><label>Firma</label><input type="text" name="ejecutor_firma_texto" class="form-control" value="{{ informe.ejecutor_firma_texto if informe else '' }}"></div>
+                <div class="col-md-4 mb-2"><label>Fecha</label><input type="date" name="fecha_firma" class="form-control" value="{{ informe.fecha_firma if informe else '' }}"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-2"><label>Coordinador Tecnología de la Operación</label><input type="text" name="coordinador_firma" class="form-control" value="{{ informe.coordinador_firma if informe else '' }}"></div>
+                <div class="col-md-4 mb-2"><label>Firma</label><input type="text" name="coordinador_firma_texto" class="form-control" value="{{ informe.coordinador_firma_texto if informe else '' }}"></div>
+                <div class="col-md-4 mb-2"><label>Fecha</label><input type="date" name="fecha_firma_coordinador" class="form-control" value="{{ informe.fecha_firma_coordinador if informe else '' }}"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+        <a href="{{ url_for('ver_ot', ot_id=ot.id) }}" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-danger btn-lg"><i class="bi bi-save"></i> Guardar Informe de Falla</button>
+    </div>
+</form>
+{% endblock %}

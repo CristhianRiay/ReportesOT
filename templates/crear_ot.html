@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Crear OT{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0"><i class="bi bi-plus-circle"></i> Crear Nueva Orden de Trabajo</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="tipo_ot" class="form-label">Tipo de OT *</label>
+                            <select name="tipo_ot" id="tipo_ot" class="form-select" required>
+                                <option value="CORRECTIVA">Correctiva</option>
+                                <option value="PREVENTIVA">Preventiva</option>
+                                <option value="MODIFICATIVA">Modificativa</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="prioridad" class="form-label">Prioridad *</label>
+                            <select name="prioridad" id="prioridad" class="form-select" required>
+                                <option value="URGENTE">Urgente 🔴</option>
+                                <option value="ALTA">Alta </option>
+                                <option value="NORMAL">Normal 🟡</option>
+                                <option value="BAJA">Baja 🟢</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="activo_canal_afectado" class="form-label">
+                                Activo/Canal Afectado *
+                            </label>
+                            <input type="text" name="activo_canal_afectado" id="activo_canal_afectado" 
+                                   class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="subestacion_nodo" class="form-label">
+                                Subestación/Nodo
+                            </label>
+                            <input type="text" name="subestacion_nodo" id="subestacion_nodo" 
+                                   class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="medio" class="form-label">Medio</label>
+                            <select name="medio" id="medio" class="form-select">
+                                <option value="FO">Fibra Óptica</option>
+                                <option value="GPRS">GPRS</option>
+                                <option value="AMBOS">Ambos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="sistema_scada_afectado" class="form-label">
+                                Sistema SCADA Afectado
+                            </label>
+                            <select name="sistema_scada_afectado" id="sistema_scada_afectado" 
+                                    class="form-select">
+                                <option value="SI">Sí</option>
+                                <option value="NO">No</option>
+                                <option value="PARCIAL">Parcial</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="fecha_creacion" class="form-label">
+                                Fecha de Creación *
+                            </label>
+                            <input type="date" name="fecha_creacion" id="fecha_creacion" 
+                                   class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="hora_creacion" class="form-label">
+                                Hora de Creación *
+                            </label>
+                            <input type="time" name="hora_creacion" id="hora_creacion" 
+                                   class="form-control" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="solicitado_por" class="form-label">
+                                Solicitado por *
+                            </label>
+                            <input type="text" name="solicitado_por" id="solicitado_por" 
+                                   class="form-control" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="aprobado_por" class="form-label">
+                                Aprobado por *
+                            </label>
+                            <input type="text" name="aprobado_por" id="aprobado_por" 
+                                   class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion_falla" class="form-label">
+                            Descripción de la Falla/Tarea *
+                        </label>
+                        <textarea name="descripcion_falla" id="descripcion_falla" 
+                                  class="form-control" rows="4" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ejecutor_id" class="form-label">
+                            Asignar a Ejecutor *
+                        </label>
+                        <select name="ejecutor_id" id="ejecutor_id" class="form-select" required>
+                            <option value="">Seleccione...</option>
+                            {% for ejecutor in ejecutores %}
+                            <option value="{{ ejecutor.id }}">{{ ejecutor.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('dashboard_coordinador') }}" 
+                           class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Crear OT
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
